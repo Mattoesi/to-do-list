@@ -1,0 +1,104 @@
+<!--index.html-->
+{% extends "base.html" %}
+
+{% block title %}To do list{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+    <h2>Task List</h2>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#taskModal">Add Task</button>
+</div>
+
+<!-- Task Modal -->
+<div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="taskModalLabel">New Task</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label for="name">Task Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task_color">Task Color</label>
+                        <input type="text" class="form-control" id="task_color" name="task_color" placeholder="e.g., #ff0000 or blue" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="content">Content</label>
+                        <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <input type="number" class="form-control" id="priority" name="priority" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bucket">Bucket</label>
+                        <select class="form-control" id="bucket" name="bucket" required>
+                            <option value="Urgent - Important">Urgent - Important</option>
+                            <option value="Urgent - Not important">Urgent - Not important</option>
+                            <option value="Not urgent - Important">Not urgent - Important</option>
+                            <option value="Not urgent - Not important">Not urgent - Not important</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Save Task</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Task List -->
+<div class="row d-flex justify-content-center">
+    {% set buckets = ["Urgent - Important", "Not urgent - Important", "Urgent - Not important", "Not urgent - Not important"] %}
+    {% for bucket in buckets %}
+    <div class="col-md-3 d-flex flex-column align-items-stretch">
+        <div class="bucket-header flex-shrink-0">
+            <h4>{{ bucket }}</h4>
+        </div>
+        <ul class="list-group task-list flex-grow-1">
+            {% for task in tasks if task.bucket == bucket %}
+            <li class="list-group-item task-item d-flex flex-column justify-content-between" style="background-color: {{ task.task_color }}; color: {{ task.text_color }};">
+                <div>
+                    <h5>{{ task.name }}</h5>
+                    <p>{{ task.content }}</p>
+                </div>
+                <div class="d-flex justify-content-between mt-auto">
+                    <small>Priority: {{ task.priority }}</small>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById("taskForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    var formData = new FormData(this);
+    fetch("/addTask", {
+        method: "POST",
+        body: formData
+    }).then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        }
+    }).catch(error => console.error("Error:", error));
+});
+</script>
+{% endblock %}
+
+
+
+
+
+
